@@ -50,18 +50,24 @@ public class AssetCachingTests : BlazorWasmTestBase
             Test = async (page) =>
             {
                 await counterLoaded.Task;
+                var responseCodes = wasmRequestRecorder.GetResponseCodes();
 
                 // Check server request logs after the first load.
-                Assert.NotEmpty(wasmRequestRecorder.ResponseCodes);
-                Assert.All(wasmRequestRecorder.ResponseCodes, r => Assert.Equal(200, r.ResponseCode));
+                Assert.NotEmpty(responseCodes);
+                Assert.All(responseCodes, r => Assert.Equal(200, r.ResponseCode));
 
-                wasmRequestRecorder.ResponseCodes.Clear();
+                if (responseCodes.Count != wasmRequestRecorder.GetResponseCodes().Count)
+                {
+                    Console.WriteLine ($"warning");
+                }
+
+                wasmRequestRecorder = new();
                 counterLoaded = new();
 
                 // Perform browser navigation to cause resource reload.
-                // We use the initial base URL because the test server is not configured for SPA routing.
                 await page.ReloadAsync();
                 await counterLoaded.Task;
+                responseCodes = wasmRequestRecorder.GetResponseCodes();
 
                 // Check server logs after the second load.
                 if (EnvironmentVariables.UseFingerprinting)
@@ -91,7 +97,16 @@ public class AssetCachingTests : BlazorWasmTestBase
 
 partial class WasmRequestRecorder
 {
-    public List<(string Name, int ResponseCode)> ResponseCodes { get; } = new();
+    private readonly object responseCodesLock = new();
+    private readonly List<(string Name, int ResponseCode)> responseCodes = new();
+
+    public List<(string Name, int ResponseCode)> GetResponseCodes()
+    {
+        lock (responseCodesLock)
+        {
+            return new List<(string Name, int ResponseCode)>(responseCodes);
+        }
+    }
 
     [GeneratedRegex(@"Request finished HTTP/\d\.\d GET http://[^/]+/(?<name>[^\s]+\.wasm)\s+-\s+(?<code>\d+)")]
     private static partial Regex LogRegex();
@@ -104,7 +119,10 @@ partial class WasmRequestRecorder
         {
             var name = match.Groups["name"].Value;
             var code = int.Parse(match.Groups["code"].Value);
-            ResponseCodes.Add((name, code));
+            lock (responseCodesLock)
+            {
+                responseCodes.Add((name, code));
+            }
         }
     }
 }
