@@ -8,11 +8,11 @@ namespace System.Runtime
         public static bool IsServerGC => false;
 
         private static GCLatencyMode GetGCLatencyMode() => GCLatencyMode.Batch;
-
+#pragma warning disable IDE0060
         private static SetLatencyModeStatus SetGCLatencyMode(GCLatencyMode newLatencyMode)
         {
-            if (newLatencyMode != GCLatencyMode.Batch)
-                throw new PlatformNotSupportedException();
+            //if (newLatencyMode != GCLatencyMode.Batch)
+            //   throw new PlatformNotSupportedException();
 
             return SetLatencyModeStatus.Succeeded;
         }
@@ -21,8 +21,9 @@ namespace System.Runtime
 
         private static void SetLOHCompactionMode(GCLargeObjectHeapCompactionMode newLOHCompactionMode)
         {
-            if (newLOHCompactionMode != GCLargeObjectHeapCompactionMode.Default)
-                throw new PlatformNotSupportedException();
+            //if (newLOHCompactionMode != GCLargeObjectHeapCompactionMode.Default)
+            //    throw new PlatformNotSupportedException();
         }
+#pragma warning restore IDE0060
     }
 }
