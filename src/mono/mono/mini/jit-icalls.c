@@ -651,7 +651,7 @@ mono_fconv_i4 (double a)
 guint8
 mono_fconv_u1 (double a)
 {
-	return (guint8)a;
+	return (guint8) ((gint32)a & 0xFF);
 }
 
 guint16

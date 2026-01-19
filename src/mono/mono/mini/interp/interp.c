@@ -5765,11 +5765,11 @@ MINT_IN_CASE(MINT_BRTRUE_I8_SP) ZEROP_SP(gint64, !=); MINT_IN_BREAK;
 			ip += 3;
 			MINT_IN_BREAK;
 		MINT_IN_CASE(MINT_CONV_U1_R4)
-			LOCAL_VAR (ip [1], gint32) = (guint8) (guint32) LOCAL_VAR (ip [2], float);
+			LOCAL_VAR (ip [1], gint32) = (guint8) ((gint32) LOCAL_VAR (ip [2], float) & 0xFF);
 			ip += 3;
 			MINT_IN_BREAK;
 		MINT_IN_CASE(MINT_CONV_U1_R8)
-			LOCAL_VAR (ip [1], gint32) = (guint8) (guint32) LOCAL_VAR (ip [2], double);
+			LOCAL_VAR (ip [1], gint32) = (guint8) ((gint32) LOCAL_VAR (ip [2], double) & 0xFF);
 			ip += 3;
 			MINT_IN_BREAK;
 		MINT_IN_CASE(MINT_CONV_I2_I4)
